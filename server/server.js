@@ -2,18 +2,16 @@
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
 const { OpenAI } = require('openai');
-
-// Init the OpenAI API Client
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
 const express = require('express');
-const app = express();
 
+
+const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+const mongoUri = process.env.MONGO_URI;
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new MongoClient(mongoUri);
 
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)
@@ -39,16 +37,32 @@ app.post('/api/chat', async (req, res) => {
       const aiResponse = completion.choices[0].message.content;
       const aiResponseTimestamp = new Date().toISOString();
 
+      await client.connect();
+
+      const db = client.db('aiMemory');
+
+      const dailyConversations = db.collection('dailyConversations');
+
+      const conversation = {
+          userMessage,
+          usermessageTimestamp,
+          aiResponse,
+          aiResponseTimestamp
+      };
+
+      await dailyConversations.insertOne(conversation);
 
       //Send back the completion as the response
       res.json({ 
-          reply: completion.choices[0].message.content,
+          reply: aiResponse,
           usermessageTimestamp,
           aiResponseTimestamp
       });
   } catch (error) {
       console.error('Error connecting to OpenAI:', error.message);
       res.status(500).json({error: 'Error connecting to OpenAI'});
+  } finally {
+      await client.close();
   }
 
 });
