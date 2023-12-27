@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import RobotFace from '../assets/robot-face.svg';
 import universalStyles from '../styles/universalStyles.js'; // Adjust the path as necessary
+import SettingsMenu from './settingsMenu';
+
 
 import Svg, { Path } from 'react-native-svg'; // Import the necessary components
 
@@ -9,18 +11,22 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const LaunchPage = () => {
-
+  const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false); 
   const navigation = useNavigation();
 
     return (
-      <View style={{...styles.container, ...universalStyles.universalBackground }}>
-        {/* Menu Bar */}
-        <View style={styles.menuBar}>
-        <Svg height="24" width="24" viewBox="0 0 18 12">
-          <Path d="M0,0 L18,0 L18,2 L0,2 L0,0 Z M0,5 L18,5 L18,7 L0,7 L0,5 Z M0,10 L18,10 L18,12 L0,12 L0,10 Z" fill="#FFF" />
-        </Svg>
-        <Text style={styles.title}>Memories</Text>
-        </View>
+        <View style={{...styles.container, ...universalStyles.universalBackground }}>
+        <StatusBar barStyle="light-content" backgroundColor="#5A55CA" />
+
+            {/* Menu Bar */}
+            <View style={styles.menuBar}>
+                <TouchableOpacity onPress={() => setIsSettingsMenuOpen(true)}>
+                  <Svg height="24" width="24" viewBox="0 0 18 12">
+                    <Path d="M0,0 L18,0 L18,2 L0,2 L0,0 Z M0,5 L18,5 L18,7 L0,7 L0,5 Z M0,10 L18,10 L18,12 L0,12 L0,10 Z" fill="#FFF" />
+                  </Svg>
+                </TouchableOpacity>
+                <Text style={styles.title}>Memories</Text>
+                </View>
   
         {/* Robot SVG as a background */}
         <View style={styles.robotContainer}>
@@ -36,6 +42,7 @@ const LaunchPage = () => {
           >
           <Text style={styles.commenceButtonText}>COMMENCE</Text>
         </TouchableOpacity>
+        {isSettingsMenuOpen && <SettingsMenu onClose={() => setIsSettingsMenuOpen(false)} />}
       </View>
     );
   };
@@ -43,7 +50,6 @@ const LaunchPage = () => {
 
 
   const styles = StyleSheet.create({
-    // ... other styles
     robotContainer: {
       position: 'absolute',
       top: 0,
@@ -60,7 +66,7 @@ const LaunchPage = () => {
     backgroundColor: '#5A55CA', // You would use a gradient background here
   },
   menuBar: {
-    marginTop: 50,
+    marginTop: 5,
     paddingHorizontal: 20, // Add padding horizontally
     flexDirection: 'row',
     alignItems: 'center',

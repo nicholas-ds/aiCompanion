@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity, KeyboardAvoidingView, ScrollView, StatusBar } from 'react-native';
 import universalStyles from '../styles/universalStyles.js'; // Adjust the path as necessary
+
+
 
 const ChatUI = () => {
     const [inputText, setInputText] = useState(''); // Initialize the state for input text
     const [conversation, setConversation] = useState([]);
     const [error, setError] = useState(''); // Initialize the error state
 
+    const moveConversations = async () => {
+      try {
+          const response = await fetch('http://192.168.1.185:3000/move-conversations', { method: 'POST' });
+  
+          if (!response.ok) throw new Error('Network response was not ok');
+          console.log('Conversations moved successfully');
+      } catch (error) {
+          console.error('There has been a problem with your fetch operation: ', error);
+      }
+  };
 
     const sendUserInputToAPI = async () => {
       try {
@@ -62,9 +73,16 @@ const ChatUI = () => {
             keyboardVerticalOffset={Platform.select({ ios: 60, android: 80 })} // Adjust as needed
         >
             {/* The interfaceContainer is now the first child inside the KeyboardAvoidingView */}
+            <StatusBar barStyle="light-content" backgroundColor="#5A55CA" />
+
             <View style={styles.interfaceContainer}>
                 <View style={styles.header}>
-                    <Text>Conversation</Text>
+                <TouchableOpacity 
+                        // style={styles.submitButton}
+                        onPress={moveConversations}
+                    >
+                        <Text>Clear Daily Conversation Memory</Text>
+                    </TouchableOpacity>
                 </View>
 
 
@@ -102,7 +120,6 @@ const ChatUI = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <StatusBar style="auto" />
         </KeyboardAvoidingView>
     );
 };
@@ -119,7 +136,7 @@ const styles = StyleSheet.create({
       borderColor: 'black',
       borderRadius: 25,
       width: '97%',
-      marginTop: 40,
+      marginTop: 5,
       marginBottom: 20,
       // paddingBottom: 60,
       borderWidth: 1,
