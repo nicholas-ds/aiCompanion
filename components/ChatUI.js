@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity, KeyboardAvoidingView, ScrollView, StatusBar } from 'react-native';
 import universalStyles from '../styles/universalStyles.js'; // Adjust the path as necessary
 
+import { REACT_APP_SERVER_IP } from '@env'
 
+const serverIP = REACT_APP_SERVER_IP ;
+console.log(serverIP);
 
 const ChatUI = () => {
     const [inputText, setInputText] = useState(''); // Initialize the state for input text
@@ -11,7 +14,7 @@ const ChatUI = () => {
 
     const moveConversations = async () => {
       try {
-          const response = await fetch('http://192.168.1.185:3000/move-conversations', { method: 'POST' });
+          const response = await fetch(`http://${serverIP}:3000/move-conversations`, { method: 'POST' });
   
           if (!response.ok) throw new Error('Network response was not ok');
           console.log('Conversations moved successfully');
@@ -29,7 +32,7 @@ const ChatUI = () => {
           };
 
           // Make an HTTP POST request to the API
-          const response = await fetch('http://192.168.1.185:3000/api/chat', {
+          const response = await fetch(`http://${serverIP}:3000/api/chat`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
