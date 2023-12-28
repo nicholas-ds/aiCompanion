@@ -1,14 +1,25 @@
 import React from 'react';
 import { View, Button, StyleSheet, TouchableOpacity, Text, Linking } from 'react-native';
+import { useSpotifyAuth } from './spotifyAuth';
 
 
 const SettingsMenu = ({ onClose }) => {
+    const { promptAsync } = useSpotifyAuth();
+
+    const handlePress = async () => {
+        try {
+            await promptAsync();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
         <View style={styles.settingsContainer}>
             <TouchableOpacity onPress={onClose}>
                 <Text style={styles.closeButton}>X</Text>
             </TouchableOpacity>
-            <Button style={styles.settingsButton} title="Log in with Spotify" onPress={() => Linking.openURL('http://192.168.1.185:3000/auth/spotify')} />
+            <Button style={styles.settingsButton} title="Log in with Spotify" onPress={handlePress} />
         </View>
     );
 };

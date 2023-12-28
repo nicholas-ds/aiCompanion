@@ -3,9 +3,9 @@ require('dotenv').config();
 const { MongoClient } = require('mongodb');
 const { OpenAI } = require('openai');
 const express = require('express');
-const passport = require('passport');
-const SpotifyStrategy = require('passport-spotify').Strategy;
 const { connectToDb, saveConversation, getDailyConversationHistory, moveConversations } = require('./dbOperations');
+
+
 
 const app = express();
 app.use(express.json());
@@ -14,18 +14,6 @@ const PORT = process.env.PORT || 3000;
 const mongoUri = process.env.MONGO_URI;
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const client = new MongoClient(mongoUri);
-
-
-passport.use(new SpotifyStrategy({
-    clientID: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-    callbackURL: process.env.CALLBACK_URL
-  },
-  function(accessToken, refreshToken, expires_in, profile, done) {
-    // Here, you will save or use the accessToken and the profile information
-    done(null, profile);
-  }
-));
 
 
 let db;
@@ -88,18 +76,3 @@ app.post('/api/chat', async (req, res) => {
 
 });
 
-app.get('/auth/spotify',
-  passport.authenticate('spotify', {
-    scope: ['user-read-email', 'user-read-private', 'streaming', 'user-modify-playback-state'], // Define the scopes you need
-    showDialog: true
-  }),
-  function(req, res){
-    // The request will be redirected to Spotify for authentication, so this function will not be called.
-  });
-
-app.get('/callback',
-  passport.authenticate('spotify', { failureRedirect: '/login' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('companionai://spotify-callback');
-  });

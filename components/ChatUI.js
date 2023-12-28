@@ -5,7 +5,6 @@ import universalStyles from '../styles/universalStyles.js'; // Adjust the path a
 import { REACT_APP_SERVER_IP } from '@env'
 
 const serverIP = REACT_APP_SERVER_IP ;
-console.log(serverIP);
 
 const ChatUI = () => {
     const [inputText, setInputText] = useState(''); // Initialize the state for input text
