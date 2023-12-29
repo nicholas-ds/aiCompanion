@@ -3,7 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, } from '@env';
 import base64 from 'react-native-base64';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -12,6 +12,32 @@ export const discovery = {
     authorizationEndpoint: 'https://accounts.spotify.com/authorize',
     tokenEndpoint: 'https://accounts.spotify.com/api/token',
   };
+
+  export async function refreshAccessToken() {
+    const refreshToken = await AsyncStorage.getItem('refreshToken');
+  
+    if (refreshToken) {
+      const response = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic ' + base64.encode(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET),
+        },
+        body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+      });
+  
+      const data = await response.json();
+  
+      if (data.access_token) {
+        await AsyncStorage.setItem('accessToken', data.access_token);
+        return data.access_token;
+      } else {
+        throw new Error('Failed to refresh access token');
+      }
+    } else {
+      throw new Error('No refresh token available');
+    }
+  }
   
   export function useSpotifyAuth() {
     const redirectUri = makeRedirectUri({
@@ -43,7 +69,12 @@ export const discovery = {
             body: `grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(redirectUri)}`,
           })
           .then(response => response.json())
-          .then(data => console.log(data))
+          .then(data => {
+            console.log(data);
+            // Store the access token and refresh token
+            AsyncStorage.setItem('accessToken', data.access_token);
+            AsyncStorage.setItem('refreshToken', data.refresh_token);
+          })
           .catch(error => console.error(error));
         }
       }, [response]);
