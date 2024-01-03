@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 const { OpenAI } = require('openai');
 const express = require('express');
 const { connectToDb, saveConversation, getDailyConversationHistory, moveConversations } = require('./dbOperations');
-
+const { handleMusicCommand, handleNormalCommand, analyzeMessage } = require('./conversationController');
 
 
 const app = express();
@@ -38,13 +38,16 @@ app.post('/api/chat', async (req, res) => {
   console.log('User Message:', userMessage);
 
   try {
+
+    const analysis = await analyzeMessage(userMessage);
+    console.log(analysis);
+
     //Retrieve conversation history from the database
     const conversationHistory = await getDailyConversationHistory(db);
 
     // Prepare the messages array for the OpenAI API
     const messages = conversationHistory;
 
-    console.log('Messages:', messages);
     // Add the current user message to the messages array
     messages.push({ role: "user", content: userMessage });
 
