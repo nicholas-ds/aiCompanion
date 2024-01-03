@@ -30,7 +30,8 @@ async function analyzeMessage(userMessage) {
 
 
 async function handleMusicCommand(userMessage) {
-    // Logic to handle music-related commands
+    // For now, just return a simple message
+    return "You asked about music!";
   }
   
   async function handleNormalCommand(userMessage) {
